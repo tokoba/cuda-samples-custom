@@ -21,7 +21,7 @@ __global__ void add(int* a, int* b, int* c, size_t n) {
 }
 
 int main() {
-    const size_t n = 1024;
+    const size_t n = 4096;
     const size_t bytes = n * sizeof(int);
 
     // ホストメモリの確保と初期化
