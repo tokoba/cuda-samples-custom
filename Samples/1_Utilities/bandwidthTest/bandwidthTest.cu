@@ -127,22 +127,41 @@ void printHelp(void);
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv) {
+  int numDevsAvailable = 0;  /* number of GPU devices available */
+  int deviceId = 0;
+  int iRetVal = 0;
   pArgc = &argc;
   pArgv = argv;
+
+  cudaError_t error_id = cudaGetDeviceCount(&numDevsAvailable);
+  if(cudaSuccess != error_id) {
+    printf("cudaGetDeviceCount returned  error id %d\n", error_id);
+  }
+
+  if(0 == numDevsAvailable) {
+    printf("No CUDA-capable devices found.\n");
+    return false;
+  }
+  printf("Number of CUDA-capable devices are %d\n", numDevsAvailable);
 
   flush_buf = (char *)malloc(FLUSH_SIZE);
 
   // set logfile name and start logs
   printf("[%s] - Starting...\n", sSDKsample);
 
-  int iRetVal = runTest(argc, (const char **)argv);
+  /* runTest function args specification:
+   * ./bandwidthTest device 0 : 1st GPU is tested
+   * ./bandwidthTest device 1 : 2nd GPU is tested
+   */
+  for(deviceId = 0; deviceId < numDevsAvailable; deviceId++) {
+    iRetVal = runTest(argc, (const char **)argv);
 
-  if (iRetVal < 0) {
-    checkCudaErrors(cudaSetDevice(0));
+    if (iRetVal < 0) {
+      checkCudaErrors(cudaSetDevice(0));
+    }
+    // finish
+    printf("%s\n", (iRetVal == 0) ? "Result = PASS" : "Result = FAIL");
   }
-
-  // finish
-  printf("%s\n", (iRetVal == 0) ? "Result = PASS" : "Result = FAIL");
 
   printf(
       "\nNOTE: The CUDA Samples are not meant for performance measurements. "
@@ -199,7 +218,7 @@ int runTest(const int argc, const char **argv) {
   }
 
   if (getCmdLineArgumentString(argc, argv, "device", &device)) {
-    int deviceCount;
+    int deviceCount = 0;
     cudaError_t error_id = cudaGetDeviceCount(&deviceCount);
 
     if (error_id != cudaSuccess) {
@@ -212,6 +231,8 @@ int runTest(const int argc, const char **argv) {
       printf("!!!!!No devices found!!!!!\n");
       return -2000;
     }
+
+    printf("[runTest] Number of CUDA-capable devices are %d\n", deviceCount);
 
     if (strcmp(device, "all") == 0) {
       printf(
@@ -230,6 +251,8 @@ int runTest(const int argc, const char **argv) {
         startDevice = endDevice = 0;
       }
     }
+  } else {
+    printf("[runTest] no args\n");
   }
 
   printf("Running on...\n\n");
