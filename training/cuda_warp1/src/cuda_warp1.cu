@@ -1,22 +1,22 @@
 #include <cuda_runtime.h>
 #include <iostream>
 
-// CUDA ƒJ[ƒlƒ‹ŠÖ”: ”z—ñ‚Ì—v‘f‚²‚Æ‚Ì‰ÁZ
+// CUDA ã‚«ãƒ¼ãƒãƒ«é–¢æ•°: é…åˆ—ã®è¦ç´ ã”ã¨ã®åŠ ç®—
 __global__ void add(int* a, int* b, int* c, size_t n) {
-    // ƒuƒƒbƒN“à‚ÌƒXƒŒƒbƒh ID ‚ğæ“¾
+    // ãƒ–ãƒ­ãƒƒã‚¯å†…ã®ã‚¹ãƒ¬ãƒƒãƒ‰ ID ã‚’å–å¾—
     unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
-    // Warp “à‚Å‚ÌƒXƒŒƒbƒh ID ‚ğŒvZ («—ˆ‚Ì—p“r‚Ì‚½‚ß‚ÉƒRƒƒ“ƒgƒAƒEƒg)
+    // Warp å†…ã§ã®ã‚¹ãƒ¬ãƒƒãƒ‰ ID ã‚’è¨ˆç®— (å°†æ¥ã®ç”¨é€”ã®ãŸã‚ã«ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ)
     // unsigned int warpId = tid / 32;
     // unsigned int laneId = tid % 32;
 
-    // ”z—ñ‚Ì”ÍˆÍ“à‚Å‚ ‚ê‚Î‰ÁZ‚ğs‚¤
+    // é…åˆ—ã®ç¯„å›²å†…ã§ã‚ã‚Œã°åŠ ç®—ã‚’è¡Œã†
     if (tid < n) {
         c[tid] = a[tid] + b[tid];
 
-        // Warp “à‚Å‚Ì“¯Šú‚ğ¦‚·ƒRƒƒ“ƒg
-        // “¯‚¶ Warp “à‚ÌƒXƒŒƒbƒh‚Í“¯‚¶–½—ß‚ğ“¯‚ÉÀs‚·‚é‚½‚ßA
-        // ‚±‚Ì“_‚Å“¯Šú‚ª•Û‚½‚ê‚éB
+        // Warp å†…ã§ã®åŒæœŸã‚’ç¤ºã™ã‚³ãƒ¡ãƒ³ãƒˆ
+        // åŒã˜ Warp å†…ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã¯åŒã˜å‘½ä»¤ã‚’åŒæ™‚ã«å®Ÿè¡Œã™ã‚‹ãŸã‚ã€
+        // ã“ã®ç‚¹ã§åŒæœŸãŒä¿ãŸã‚Œã‚‹ã€‚
     }
 }
 
@@ -24,7 +24,7 @@ int main() {
     const size_t n = 4096;
     const size_t bytes = n * sizeof(int);
 
-    // ƒzƒXƒgƒƒ‚ƒŠ‚ÌŠm•Û‚Æ‰Šú‰»
+    // ãƒ›ã‚¹ãƒˆãƒ¡ãƒ¢ãƒªã®ç¢ºä¿ã¨åˆæœŸåŒ–
     int* h_a = new int[n];
     int* h_b = new int[n];
     int* h_c = new int[n];
@@ -34,25 +34,25 @@ int main() {
         h_b[i] = i * 2;
     }
 
-    // ƒfƒoƒCƒXƒƒ‚ƒŠ‚ÌŠm•Û
+    // ãƒ‡ãƒã‚¤ã‚¹ãƒ¡ãƒ¢ãƒªã®ç¢ºä¿
     int* d_a, *d_b, *d_c;
     cudaMalloc(&d_a, bytes);
     cudaMalloc(&d_b, bytes);
     cudaMalloc(&d_c, bytes);
 
-    // ƒzƒXƒg‚©‚çƒfƒoƒCƒX‚Ö‚Ìƒf[ƒ^“]‘—
+    // ãƒ›ã‚¹ãƒˆã‹ã‚‰ãƒ‡ãƒã‚¤ã‚¹ã¸ã®ãƒ‡ãƒ¼ã‚¿è»¢é€
     cudaMemcpy(d_a, h_a, bytes, cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, h_b, bytes, cudaMemcpyHostToDevice);
 
-    // ƒJ[ƒlƒ‹‚ÌÀs: 128 ƒXƒŒƒbƒh‚ÌƒuƒƒbƒN‚ğg—p
+    // ã‚«ãƒ¼ãƒãƒ«ã®å®Ÿè¡Œ: 128 ã‚¹ãƒ¬ãƒƒãƒ‰ã®ãƒ–ãƒ­ãƒƒã‚¯ã‚’ä½¿ç”¨
     size_t threadsPerBlock = 128;
     size_t blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
     add<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, n);
 
-    // ƒfƒoƒCƒX‚©‚çƒzƒXƒg‚Ö‚Ìƒf[ƒ^“]‘—
+    // ãƒ‡ãƒã‚¤ã‚¹ã‹ã‚‰ãƒ›ã‚¹ãƒˆã¸ã®ãƒ‡ãƒ¼ã‚¿è»¢é€
     cudaMemcpy(h_c, d_c, bytes, cudaMemcpyDeviceToHost);
 
-    // Œ‹‰Ê‚ÌŠm”F
+    // çµæœã®ç¢ºèª
     for (size_t i = 0; i < n; ++i) {
         if (h_c[i] != h_a[i] + h_b[i]) {
             std::cerr << "Error at index " << i << ": expected " << h_a[i] + h_b[i] << ", got " << h_c[i] << std::endl;
@@ -60,7 +60,7 @@ int main() {
         }
     }
 
-    // ƒƒ‚ƒŠ‚Ì‰ğ•ú
+    // ãƒ¡ãƒ¢ãƒªã®è§£æ”¾
     delete[] h_a;
     delete[] h_b;
     delete[] h_c;

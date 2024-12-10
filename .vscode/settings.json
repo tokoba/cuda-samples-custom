@@ -1,0 +1,16 @@
+{
+    "cmake.sourceDirectory": "/home/maru/dev/nvidia/cuda-samples-custom/training/vectorAdd",
+    "files.associations": {
+        "*.css": "tailwindcss",
+        "*.cpp": "cpp",
+        "vector": "cpp",
+        "string": "cpp"
+    },
+    "C_Cpp.default.includePath": ["/usr/local/cuda/**/*"],
+    "files.encoding": "utf8",
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.formatOnSave": true,
+    "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}",
+    "cmake.buildDirectory": "${workspaceFolder}/training/build",
+
+}

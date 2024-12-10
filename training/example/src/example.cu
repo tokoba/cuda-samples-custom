@@ -2,15 +2,15 @@
 #include <iostream>
 
 __global__ void add(int *a, int *b, int *c, int N) {
-    // ƒOƒ[ƒoƒ‹ƒXƒŒƒbƒhID‚ğŒvZ
+    // ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚¹ãƒ¬ãƒƒãƒ‰IDã‚’è¨ˆç®—
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (tid < N) {  // ”ÍˆÍƒ`ƒFƒbƒN
+    if (tid < N) {  // ç¯„å›²ãƒã‚§ãƒƒã‚¯
         c[tid] = a[tid] + b[tid];
     }
 }
 
 int main() {
-    const int N = 1024;  // —v‘f”
+    const int N = 1024;  // è¦ç´ æ•°
     
     size_t bytes = N * sizeof(int);
     cudaSetDevice(0);
@@ -21,44 +21,44 @@ int main() {
         return 1;
     }
 
-    // ƒzƒXƒgƒƒ‚ƒŠ‚ÌŠm•Û
+    // ãƒ›ã‚¹ãƒˆãƒ¡ãƒ¢ãƒªã®ç¢ºä¿
     int *h_a, *h_b, *h_c;
     h_a = (int*)malloc(bytes);
     h_b = (int*)malloc(bytes);
     h_c = (int*)malloc(bytes);
 
-    // ƒf[ƒ^‚Ì‰Šú‰»
+    // ãƒ‡ãƒ¼ã‚¿ã®åˆæœŸåŒ–
     for (int i = 0; i < N; ++i) {
         h_a[i] = -i;
         h_b[i] = i * i;
     }
 
-    // ƒfƒoƒCƒXƒƒ‚ƒŠ‚ÌŠm•Û
+    // ãƒ‡ãƒã‚¤ã‚¹ãƒ¡ãƒ¢ãƒªã®ç¢ºä¿
     int *d_a, *d_b, *d_c;
     cudaMalloc(&d_a, bytes);
     cudaMalloc(&d_b, bytes);
     cudaMalloc(&d_c, bytes);
 
-    // ƒzƒXƒg‚©‚çƒfƒoƒCƒX‚Ö‚Ìƒf[ƒ^“]‘—
+    // ãƒ›ã‚¹ãƒˆã‹ã‚‰ãƒ‡ãƒã‚¤ã‚¹ã¸ã®ãƒ‡ãƒ¼ã‚¿è»¢é€
     cudaMemcpy(d_a, h_a, bytes, cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, h_b, bytes, cudaMemcpyHostToDevice);
 
-    // ƒJ[ƒlƒ‹‚ÌÀs
+    // ã‚«ãƒ¼ãƒãƒ«ã®å®Ÿè¡Œ
     int threadsPerBlock = 256;
     int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
     add<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, N);
 
-    // ƒGƒ‰[ƒ`ƒFƒbƒN
+    // ã‚¨ãƒ©ãƒ¼ãƒã‚§ãƒƒã‚¯
     cudaStatus = cudaGetLastError();
     if (cudaStatus != cudaSuccess) {
         std::cerr << "Kernel launch failed: " << cudaGetErrorString(cudaStatus) << std::endl;
         return 1;
     }
 
-    // ƒfƒoƒCƒX‚©‚çƒzƒXƒg‚Ö‚Ìƒf[ƒ^“]‘—
+    // ãƒ‡ãƒã‚¤ã‚¹ã‹ã‚‰ãƒ›ã‚¹ãƒˆã¸ã®ãƒ‡ãƒ¼ã‚¿è»¢é€
     cudaMemcpy(h_c, d_c, bytes, cudaMemcpyDeviceToHost);
 
-    // Œ‹‰Ê‚ÌŠm”F
+    // çµæœã®ç¢ºèª
     for (int i = 0; i < N; ++i) {
         if (h_c[i] != h_a[i] + h_b[i]) {
             std::cerr << "Error at index " << i << ": expected " << h_a[i] + h_b[i] << ", got " << h_c[i] << std::endl;
@@ -66,7 +66,7 @@ int main() {
         }
     }
 
-    // ƒƒ‚ƒŠ‚Ì‰ğ•ú
+    // ãƒ¡ãƒ¢ãƒªã®è§£æ”¾
     free(h_a);
     free(h_b);
     free(h_c);
